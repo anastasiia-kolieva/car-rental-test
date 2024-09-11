@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 function LogIn() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
   
     const handleSubmit = async (e) => {
@@ -21,10 +22,10 @@ function LogIn() {
           localStorage.setItem('token', data.token);
           navigate('/upload')
         } else {
-          console.error('Error:', data.message);
+          setErrorMessage(`Error: ${data.message}`);
         }
     } catch (error) {
-        console.error('Error:',error);
+        setErrorMessage(`Error: ${error}`);
         setEmail('');
         setPassword('');
     }
@@ -54,8 +55,10 @@ function LogIn() {
             Log In
           </button>
         </form>
+        {errorMessage && <p className="text-red-500 mt-3">{errorMessage}</p>}
       </div>
     );
   }
   
   export default LogIn;
+  

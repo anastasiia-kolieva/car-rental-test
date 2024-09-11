@@ -2,24 +2,50 @@ import React, { useState } from 'react';
 
 function FileUpload() {
   const [file, setFile] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleFileChange = (e) => {
-    // setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    const fileType = selectedFile?.type;
+
+    if (fileType === 'application/pdf' || fileType === 'image/jpeg') {
+      setFile(selectedFile);
+      setErrorMessage('');
+    } else {
+      setFile(null);
+      setErrorMessage('Only PDF or JPEG files are allowed.');
+    }
   };
 
-  const handleUpload = (e) => {
+  const handleUpload = async (e) => {
     e.preventDefault();
-    // const formData = new FormData();
-    // formData.append('file', file);
 
-    // fetch('http://localhost:3000/upload', {
-    //   method: 'POST',
-    //   body: formData,
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     console.log(data);
-    //   });
+    if (!file) {
+      setErrorMessage('Please select a file to upload.');
+      return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccessMessage('File uploaded successfully!');
+        setFile(null);
+      } else {
+        setErrorMessage(`Error: ${data.message}` || 'File upload failed.');
+      }
+    } catch (error) {
+      setErrorMessage('An error occurred during file upload.');
+    }
   };
 
   return (
@@ -31,6 +57,8 @@ function FileUpload() {
           Upload
         </button>
       </form>
+      {errorMessage && <p className="text-red-500 mt-3">{errorMessage}</p>}
+      {successMessage && <p className="text-green-500 mt-3">{successMessage}</p>}
     </div>
   );
 }
