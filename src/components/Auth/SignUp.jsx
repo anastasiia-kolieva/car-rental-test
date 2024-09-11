@@ -1,22 +1,32 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function SignUp() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
   
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
       e.preventDefault();
-      // // Отправка данных на API
-      // fetch('http://localhost:3000/auth/signup', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password }),
-      // })
-      //   .then((response) => response.json())
-      //   .then((data) => {
-      //     console.log(data);
-      //     // Обработка ответа
-      //   });
+
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/signup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+        if(response.ok){
+          navigate('/upload')
+        } else {
+          console.error('Error:', data.message);
+        }
+    } catch (error) {
+        console.error('Error:',error);
+        setEmail('');
+        setPassword('');
+    }
     };
   
     return (
@@ -26,7 +36,7 @@ function SignUp() {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value.trim())}
             className="border p-2 w-full"
             placeholder="Email"
             required
@@ -34,7 +44,7 @@ function SignUp() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value.trim())}
             className="border p-2 w-full"
             placeholder="Password"
             required
