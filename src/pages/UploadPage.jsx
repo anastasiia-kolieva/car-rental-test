@@ -28,10 +28,14 @@ function FileUpload() {
     
     const formData = new FormData();
     formData.append('file', file);
+    const token = localStorage.getItem('token');
 
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formData,
       });
 

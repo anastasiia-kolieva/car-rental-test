@@ -18,7 +18,8 @@ function SignUp() {
         });
 
         const data = await response.json();
-        if(response.ok){
+        if(response.ok && data.token){
+          localStorage.setItem('token', data.token);
           navigate('/upload')
         } else {
           setErrorMessage(`Error: ${data.message}`);
